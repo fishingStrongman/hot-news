@@ -33,7 +33,7 @@ type BaiDu struct {
 	//关键字 or url
 	Url string `json:"url" gorm:"url"`
 	//热度
-	Hot int `json:"hot" gorm:"hot"`
+	Hot string `json:"hot" gorm:"hot"`
 	//创建时间
 	CreatedTime string `json:"created_time" gorm:"created_time"`
 	//更新时间
