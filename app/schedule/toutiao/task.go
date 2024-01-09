@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const api = "https://api.baiwumm.com/hot/toutiao"
+const api = "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00d01fz2EaAAAIDCqXSaPLKo-Pn80hUAABqj2McKKyN-ZFKSeYnDCzFmiHfyLZVJUtrSCHyGtp2v7Ztb7pLyecXTYgXFN6.XJUqt0-qtlRw2HTe2N25GxfGIYvmXAjOtTfj2fexBfc"
 
 func Run() {
 	getInfo()
@@ -49,8 +49,10 @@ func getInfo() {
 	}
 	var data []TouTiao
 	now := time.Now().Unix()
-	for _, datum := range baiduHot.Data.List {
+	for _, datum := range baiduHot.List {
 		a := TouTiao{
+			Icon:        datum.Label,
+			LabelDesc:   datum.LabelDesc,
 			UpdateVer:   now,
 			Title:       datum.Title,
 			Url:         datum.Url,
@@ -60,5 +62,6 @@ func getInfo() {
 		}
 		data = append(data, a)
 	}
+	//fmt.Println(data)
 	model.Conn.Table(data[0].TableName()).Create(&data)
 }

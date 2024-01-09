@@ -2,18 +2,16 @@ package zhihu
 
 // 接受百度的热搜数据
 type Hot struct {
-	Data Date `json:"data"`
+	Data []Date `json:"data"`
 }
 type Date struct {
-	List []ResDate `json:"list"`
+	List        ResDate `json:"target"`
+	DeTail_Text string  `json:"detail_Text"`
 }
 type ResDate struct {
-	Id        string `json:"id"`
-	Title     string `json:"title"`
-	Pic       string `json:"pic"`
-	Hot       int    `json:"hot"`
-	Url       string `json:"url"`
-	MobileUrl string `json:"mobileUrl"`
+	Title string `json:"title"`
+	Url   string `json:"url"`
+	Type  string `json:"type"`
 }
 
 // 返回给前端的结构体
@@ -33,7 +31,7 @@ type ZhiHu struct {
 	//关键字 or url
 	Url string `json:"url" gorm:"url"`
 	//热度
-	Hot int `json:"hot" gorm:"hot"`
+	Hot string `json:"hot" gorm:"hot"`
 	//创建时间
 	CreatedTime string `json:"created_time" gorm:"created_time"`
 	//更新时间

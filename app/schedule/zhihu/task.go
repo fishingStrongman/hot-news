@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const api = "https://api.baiwumm.com/hot/zhihu"
+const api = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true"
 
 func Run() {
 	getInfo()
@@ -49,12 +49,12 @@ func getInfo() {
 	}
 	var data []ZhiHu
 	now := time.Now().Unix()
-	for _, datum := range baiduHot.Data.List {
+	for _, datum := range baiduHot.Data {
 		a := ZhiHu{
 			UpdateVer:   now,
-			Title:       datum.Title,
-			Url:         datum.Url,
-			Hot:         datum.Hot,
+			Title:       datum.List.Title,
+			Url:         datum.List.Url,
+			Hot:         datum.DeTail_Text,
 			CreatedTime: time.Now().Format("2006-01-02 15:04:05"),
 			UpdatedTime: time.Now().Format("2006-01-02 15:04:05"),
 		}

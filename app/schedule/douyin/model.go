@@ -5,14 +5,13 @@ type Hot struct {
 	Data Date `json:"data"`
 }
 type Date struct {
-	List []ResDate `json:"list"`
+	List []ResDate `json:"word_list"`
 }
 type ResDate struct {
 	Id        string `json:"id"`
-	Title     string `json:"title"`
+	Title     string `json:"word"`
 	Pic       string `json:"pic"`
-	Hot       int    `json:"hot"`
-	Url       string `json:"url"`
+	Hot       int    `json:"hot_value"`
 	MobileUrl string `json:"mobileUrl"`
 }
 
