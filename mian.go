@@ -1,9 +1,7 @@
 package main
 
-import (
-	"hotinfo/app/schedule/bilibili"
-)
+import "hotinfo/app"
 
 func main() {
-	bilibili.Run()
+	app.Start()
 }
