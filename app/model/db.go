@@ -9,7 +9,7 @@ import (
 var Conn *gorm.DB
 
 func NewMysql() {
-	my := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "123", "localhost:3306", "hotinfo")
+	my := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "localhost:3306", "hotinfo")
 	conn, err := gorm.Open(mysql.Open(my), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("err:%s\n", err)
