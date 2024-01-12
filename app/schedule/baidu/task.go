@@ -37,7 +37,8 @@ func getInfo() {
 	// 将 HTML 字符串加载到 GoQuery 文档中
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
 	if err != nil {
-		log.Fatal("Failed to load HTML:", err)
+		fmt.Println("Failed to load HTML:", err)
+		return
 	}
 	//var res []string
 	// 提取指定 id 的 div 中的内容
