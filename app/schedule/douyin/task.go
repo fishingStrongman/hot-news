@@ -3,6 +3,7 @@ package douyin
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io/ioutil"
 	"net/http"
@@ -12,6 +13,19 @@ import (
 const api = "https://www.douyin.com/aweme/v1/web/hot/search/list/?device_platform=webapp&aid=6383&channel=channel_pc_web&detail_list=1&source=6&board_type=0&board_sub_type=&pc_client_type=1&version_code=170400&version_name=17.4.0&cookie_enabled=true&screen_width=1536&screen_height=864&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=116.0.1938.76&browser_online=true&engine_name=Blink&engine_version=116.0.0.0&os_name=Windows&os_version=10&cpu_core_num=16&device_memory=8&platform=PC&downlink=10&effective_type=4g&round_trip_time=200&webid=7321996960310937088&msToken=2PE2cwtw2KA_3xc3c1KxDTbkVwCPvWZRXh2Oik0TnjElG-Fn0VvHeFjycKRPRHQ6p71nVgIHEHkEE3pkaaY9t22pOLglxxmnyeH20H11_1rOzY9IuQ==&X-Bogus=DFSzswVLvtUANyuHt7En9ENSwbuS"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do(c *gin.Context) {
 	getInfo()
 }
 func getInfo() {

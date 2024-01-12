@@ -3,6 +3,7 @@ package hyper
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io"
 	"net/http"
@@ -12,7 +13,21 @@ import (
 const api = "https://cache.thepaper.cn/contentapi/wwwIndex/rightSidebar"
 
 func Run() {
-	getHyper()
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+
+func Do(c *gin.Context) {
+	getInfo()
 }
 func getFirstTag(tagList []*TagList) string {
 	if len(tagList) > 0 {
@@ -20,7 +35,7 @@ func getFirstTag(tagList []*TagList) string {
 	}
 	return ""
 }
-func getHyper() {
+func getInfo() {
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", api, nil)
 	if err != nil {

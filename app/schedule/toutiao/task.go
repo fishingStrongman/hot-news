@@ -3,6 +3,7 @@ package toutiao
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io/ioutil"
 	"net/http"
@@ -12,6 +13,19 @@ import (
 const api = "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00d01fz2EaAAAIDCqXSaPLKo-Pn80hUAABqj2McKKyN-ZFKSeYnDCzFmiHfyLZVJUtrSCHyGtp2v7Ztb7pLyecXTYgXFN6.XJUqt0-qtlRw2HTe2N25GxfGIYvmXAjOtTfj2fexBfc"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do(c *gin.Context) {
 	getInfo()
 }
 func getInfo() {

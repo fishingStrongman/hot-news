@@ -3,6 +3,7 @@ package juejin
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io"
 	"net/http"
@@ -12,6 +13,19 @@ import (
 const api = "https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&type=hot&aid=2608&uuid=7263387509600912950&spider=0"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do(c *gin.Context) {
 	getInfo()
 }
 func getInfo() {

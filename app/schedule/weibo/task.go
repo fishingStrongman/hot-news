@@ -3,6 +3,7 @@ package weibo
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io"
 	"net/http"
@@ -12,6 +13,19 @@ import (
 const api = "https://weibo.com/ajax/side/hotSearch"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do(c *gin.Context) {
 	getInfo()
 }
 func getInfo() {

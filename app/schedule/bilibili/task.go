@@ -3,6 +3,7 @@ package bilibili
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io"
 	"net/http"
@@ -28,7 +29,7 @@ func Run() {
 }
 
 // 提供手动调用一次的方法
-func Do() {
+func Do(c *gin.Context) {
 	getInfo()
 }
 

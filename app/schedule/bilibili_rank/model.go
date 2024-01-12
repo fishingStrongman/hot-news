@@ -1,4 +1,4 @@
-package brank
+package bilibili_rank
 
 import "time"
 
@@ -21,7 +21,7 @@ type List struct {
 	ShortLinkV2 string `json:"short_link_v2"`
 }
 
-//CREATE TABLE `brank` (
+//CREATE TABLE `bilibili_rank` (
 //`id` bigint NOT NULL AUTO_INCREMENT,
 //`update_ver` bigint DEFAULT NULL,
 //`title` varchar(255) DEFAULT NULL,
@@ -45,5 +45,5 @@ type BRank struct {
 }
 
 func (b *BRank) TableName() string {
-	return "brank"
+	return "bilibili_rank"
 }

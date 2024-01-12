@@ -3,6 +3,7 @@ package zhihu
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io/ioutil"
 	"net/http"
@@ -12,6 +13,19 @@ import (
 const api = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do(c *gin.Context) {
 	getInfo()
 }
 func getInfo() {

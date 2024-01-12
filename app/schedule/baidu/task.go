@@ -3,6 +3,7 @@ package baidu
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io/ioutil"
 	"log"
@@ -14,6 +15,20 @@ import (
 const api = "https://top.baidu.com/board?platform=pc&sa=pcindex_entry"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+
+func Do(c *gin.Context) {
 	getInfo()
 }
 func getInfo() {

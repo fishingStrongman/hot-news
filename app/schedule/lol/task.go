@@ -3,6 +3,7 @@ package lol
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io"
 	"net/http"
@@ -12,6 +13,23 @@ import (
 
 const api = "https://apps.game.qq.com/cmc/zmMcnTargetContentList?r0=jsonp&page=1&num=16&target=24&source=web_pc&r1=jQuery19108354930441080934_1704804548069&_=1704804548070"
 
+func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+
+func Do(c *gin.Context) {
+	getInfo()
+}
 func extractJSONP(jsonp []byte) ([]byte, error) {
 	re := regexp.MustCompile(`^[^(]*\((.*)\);$`)
 	matches := re.FindSubmatch(jsonp)
@@ -20,10 +38,7 @@ func extractJSONP(jsonp []byte) ([]byte, error) {
 	}
 	return matches[1], nil
 }
-func Run() {
-	getLol()
-}
-func getLol() {
+func getInfo() {
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", api, nil)
 	if err != nil {
