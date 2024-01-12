@@ -14,6 +14,21 @@ import (
 const api = "https://api.bilibili.com/x/web-interface/wbi/search/square?limit=20&platform=web"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+
+// 提供手动调用一次的方法
+func Do() {
 	getInfo()
 }
 
