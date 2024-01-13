@@ -1,10 +1,5 @@
-#mysql:
-#  host: "8.130.129.57:3306"
-#  username: "hot_info"
-#  password: "inF2AfAWSMCxXt3C"
-#  database: "hot_info"
 mysql:
-  host: "127.0.0.1:3306"
-  username: "root"
-  password: "root"
-  database: "pachong"
+  host: "8.130.129.57:3306"
+  username: "hot_info"
+  password: "inF2AfAWSMCxXt3C"
+  database: "hot_info"
