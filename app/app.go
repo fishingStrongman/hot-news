@@ -6,7 +6,7 @@ import (
 )
 
 func Start() {
-	model.NewMysql()
+	model.NewMySql()
 	TaskRun()
 }
 

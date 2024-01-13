@@ -1,17 +1,14 @@
 package schedule
 
-import (
-	"hotinfo/app/schedule/bilibili"
-	"hotinfo/app/schedule/juejin"
-	"hotinfo/app/schedule/tengxun"
-	"hotinfo/app/schedule/wangyi"
-	"hotinfo/app/schedule/weibo"
-)
+import "hotinfo/app/schedule/brank"
 
 func Run() {
-	bilibili.Run()
-	juejin.Run()
-	tengxun.Run()
-	wangyi.Run()
-	weibo.Run()
+	//bilibili.Run()
+	//juejin.Run()
+	//tengxun.Run()
+	//wangyi.Run()
+	//weibo.Run()
+	//hyper.Run()
+	//lol.Run()
+	brank.Run()
 }
