@@ -5,7 +5,6 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"log"
 )
 
 var Conn *gorm.DB
@@ -31,7 +30,8 @@ func NewMySql() {
 	)
 	conn, err := gorm.Open(mysql.Open(connStr), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		panic(
+			err)
 	}
 	Conn = conn
 }
