@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hotinfo/app/model"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -12,6 +13,19 @@ import (
 const api = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do() {
 	getInfo()
 }
 func getInfo() {
@@ -61,4 +75,25 @@ func getInfo() {
 		data = append(data, a)
 	}
 	model.Conn.Table(data[0].TableName()).Create(&data)
+}
+func Refresh() []ZhiHu {
+	var maxUpdateVer int64
+
+	// 查询最大的 update_ver
+	result := model.Conn.Model(&ZhiHu{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 查询所有 update_ver 为最大值的记录
+	var zhihuList []ZhiHu
+	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&zhihuList)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 打印查询结果
+	fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
+	return zhihuList
+
 }

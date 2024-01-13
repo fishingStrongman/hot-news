@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hotinfo/app/model"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -14,6 +15,19 @@ import (
 const api = "https://api.bilibili.com/x/web-interface/wbi/search/square?limit=20&platform=web"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do() {
 	getInfo()
 }
 
@@ -65,4 +79,25 @@ func getInfo() {
 	}
 
 	model.Conn.Create(data)
+}
+func Refresh() []Bilibili {
+	var maxUpdateVer int64
+
+	// 查询最大的 update_ver
+	result := model.Conn.Model(&Bilibili{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 查询所有 update_ver 为最大值的记录
+	var bilibiliList []Bilibili
+	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&bilibiliList)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 打印查询结果
+	fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
+	return bilibiliList
+
 }

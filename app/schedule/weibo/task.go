@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hotinfo/app/model"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -12,6 +13,19 @@ import (
 const api = "https://weibo.com/ajax/side/hotSearch"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do() {
 	getInfo()
 }
 func getInfo() {
@@ -49,14 +63,13 @@ func getInfo() {
 	realtimeData := response.Data.Realtime
 
 	// 打印解析后的 realtime 数据
-	fmt.Printf("Realtime data: %+v\n", realtimeData)
+	//fmt.Printf("Realtime data: %+v\n", realtimeData)
 	data := make([]*WeiBo, 0)
 	now := time.Now().Unix()
 	head := "https://s.weibo.com/weibo?q=%23"
 	tail := "%23&t=31&band_rank=2&Refer=top"
 	for _, list := range realtimeData {
 		url := head + list.Note + tail
-		fmt.Println(url)
 		tmp := WeiBo{
 			UpdateVer:   now,
 			Note:        list.Note,
@@ -69,6 +82,28 @@ func getInfo() {
 		data = append(data, &tmp)
 
 	}
+	fmt.Println("数据", data)
 	model.Conn.Create(data)
+
+}
+func Refresh() []WeiBo {
+	var maxUpdateVer int64
+
+	// 查询最大的 update_ver
+	result := model.Conn.Model(&WeiBo{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 查询所有 update_ver 为最大值的记录
+	var weiboList []WeiBo
+	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&weiboList)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 打印查询结果
+	fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
+	return weiboList
 
 }

@@ -2,18 +2,18 @@ package weibo
 
 import "time"
 
-// 建表语句
 // CREATE TABLE `weibo` (
 // `id` bigint NOT NULL AUTO_INCREMENT,
 // `update_ver` bigint DEFAULT NULL,
 // `note` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+// `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 // `icon_desc` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 // `category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 // `created_time` datetime DEFAULT NULL,
 // `updated_time` datetime DEFAULT NULL,
 // PRIMARY KEY (`id`),
 // KEY `index` (`update_ver`) USING BTREE
-// ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+// ) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 type Response struct {
 	Ok   int `json:"ok"`
 	Data struct {
