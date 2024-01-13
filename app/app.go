@@ -8,8 +8,9 @@ import (
 
 func Start() {
 	model.NewMysql()
+	//baidu.Do()
 	//爬虫定时器启动
-	taskRun()
+	//	taskRun()
 
 	//服务器必须最后启动
 	logic.Router()

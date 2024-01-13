@@ -3,9 +3,9 @@ package hyper
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"hotinfo/app/model"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -26,7 +26,7 @@ func Run() {
 	}
 }
 
-func Do(c *gin.Context) {
+func Do() {
 	getInfo()
 }
 func getFirstTag(tagList []*TagList) string {
@@ -76,4 +76,25 @@ func getInfo() {
 		data = append(data, &tmp)
 	}
 	model.Conn.Create(data)
+}
+func Refresh() []Hyper {
+	var maxUpdateVer int64
+
+	// 查询最大的 update_ver
+	result := model.Conn.Model(&Hyper{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 查询所有 update_ver 为最大值的记录
+	var pengpaiList []Hyper
+	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&pengpaiList)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 打印查询结果
+	fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
+	return pengpaiList
+
 }

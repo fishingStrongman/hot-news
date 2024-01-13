@@ -45,5 +45,5 @@ type BRank struct {
 }
 
 func (b *BRank) TableName() string {
-	return "bilibili_rank"
+	return "brank"
 }

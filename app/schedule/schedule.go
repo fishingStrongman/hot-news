@@ -34,6 +34,6 @@ func Run() {
 	}
 
 	for _, task := range Tasks {
-		task()
+		go task()
 	}
 }

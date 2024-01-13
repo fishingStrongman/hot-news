@@ -41,7 +41,7 @@ type Response struct {
 // `id` bigint NOT NULL AUTO_INCREMENT,
 // `update_ver` bigint DEFAULT NULL,
 // `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-// `icon` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+// `url` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 // `key_word` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 // `created_time` datetime DEFAULT NULL,
 // `updated_time` datetime DEFAULT NULL,
