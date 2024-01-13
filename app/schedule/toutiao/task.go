@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hotinfo/app/model"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -12,6 +13,19 @@ import (
 const api = "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00d01fz2EaAAAIDCqXSaPLKo-Pn80hUAABqj2McKKyN-ZFKSeYnDCzFmiHfyLZVJUtrSCHyGtp2v7Ztb7pLyecXTYgXFN6.XJUqt0-qtlRw2HTe2N25GxfGIYvmXAjOtTfj2fexBfc"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do() {
 	getInfo()
 }
 func getInfo() {
@@ -64,4 +78,25 @@ func getInfo() {
 	}
 	//fmt.Println(data)
 	model.Conn.Table(data[0].TableName()).Create(&data)
+}
+func Refresh() []TouTiao {
+	var maxUpdateVer int64
+
+	// 查询最大的 update_ver
+	result := model.Conn.Model(&TouTiao{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 查询所有 update_ver 为最大值的记录
+	var toutiaoList []TouTiao
+	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&toutiaoList)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 打印查询结果
+	fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
+	return toutiaoList
+
 }

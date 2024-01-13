@@ -4,4 +4,5 @@ import "hotinfo/app"
 
 func main() {
 	app.Start()
+
 }

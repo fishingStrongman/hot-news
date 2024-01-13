@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hotinfo/app/model"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -12,6 +13,19 @@ import (
 const api = "https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&type=hot&aid=2608&uuid=7263387509600912950&spider=0"
 
 func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+func Do() {
 	getInfo()
 }
 func getInfo() {
@@ -72,4 +86,25 @@ func getInfo() {
 		// 打印其他字段值...
 	}
 	model.Conn.Create(data)
+}
+func Refresh() []Juejin {
+	var maxUpdateVer int64
+
+	// 查询最大的 update_ver
+	result := model.Conn.Model(&Juejin{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 查询所有 update_ver 为最大值的记录
+	var juejinList []Juejin
+	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&juejinList)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 打印查询结果
+	fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
+	return juejinList
+
 }

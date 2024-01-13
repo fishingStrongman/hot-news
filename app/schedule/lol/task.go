@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hotinfo/app/model"
 	"io"
+	"log"
 	"net/http"
 	"regexp"
 	"time"
@@ -12,6 +13,23 @@ import (
 
 const api = "https://apps.game.qq.com/cmc/zmMcnTargetContentList?r0=jsonp&page=1&num=16&target=24&source=web_pc&r1=jQuery19108354930441080934_1704804548069&_=1704804548070"
 
+func Run() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			getInfo()
+		}
+	}
+}
+
+func Do() {
+	getInfo()
+}
 func extractJSONP(jsonp []byte) ([]byte, error) {
 	re := regexp.MustCompile(`^[^(]*\((.*)\);$`)
 	matches := re.FindSubmatch(jsonp)
@@ -20,10 +38,7 @@ func extractJSONP(jsonp []byte) ([]byte, error) {
 	}
 	return matches[1], nil
 }
-func Run() {
-	getLol()
-}
-func getLol() {
+func getInfo() {
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", api, nil)
 	if err != nil {
@@ -74,4 +89,25 @@ func getLol() {
 		data = append(data, &tmp)
 	}
 	model.Conn.Create(data)
+}
+func Refresh() []Lol {
+	var maxUpdateVer int64
+
+	// 查询最大的 update_ver
+	result := model.Conn.Model(&Lol{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 查询所有 update_ver 为最大值的记录
+	var lolList []Lol
+	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&lolList)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+
+	// 打印查询结果
+	fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
+	return lolList
+
 }
