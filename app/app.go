@@ -9,9 +9,7 @@ import (
 func Start() {
 
 	model.NewMySql()
-	//TaskRun()
 
-	//baidu.Do()
 	//爬虫定时器启动
 	//	taskRun()
 
