@@ -35,7 +35,7 @@ type Realtime struct {
 type WeiBo struct {
 	ID          int64     `json:"id" gorm:"id"`
 	UpdateVer   int64     `json:"update_ver" gorm:"update_ver"`
-	Note        string    `json:"note" gorm:"note"`
+	Title       string    `json:"title" gorm:"title"`
 	Url         string    `json:"url" gorm:"url"`
 	IconDesc    string    `json:"icon_desc" gorm:"icon_desc"`
 	Category    string    `json:"category" gorm:"category"`

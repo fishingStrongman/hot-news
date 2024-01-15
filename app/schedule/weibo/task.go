@@ -72,7 +72,7 @@ func getInfo() {
 		url := head + list.Note + tail
 		tmp := WeiBo{
 			UpdateVer:   now,
-			Note:        list.Note,
+			Title:       list.Note,
 			Url:         url,
 			IconDesc:    list.IconDesc,
 			Category:    list.Category,

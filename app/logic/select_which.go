@@ -18,19 +18,10 @@ import (
 	"hotinfo/app/schedule/zhihu"
 )
 
-type SelectReq struct {
-	NewName string `json:"new_name"`
-}
-
 func Select(c *gin.Context) {
-	var cr SelectReq
-	err := c.ShouldBindJSON(&cr)
-	if err != nil {
-		fmt.Println("select_err", err)
-		response.FailWithMessage("刷新失败,请重试", c)
-		return
-	}
-	switch cr.NewName {
+	newName := c.Query("new_name")
+	fmt.Println("new_name", newName)
+	switch newName {
 	case "微博热搜榜":
 		resp := weibo.Refresh()
 		response.Ok(resp, "微博热搜榜刷新成功", c)

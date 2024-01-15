@@ -33,12 +33,13 @@ type TagList struct {
 //) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 type Hyper struct {
-	UpdateVer   int64     `gorm:"column:update_ver"`
-	Title       string    `json:"title"`
-	KeyWord     string    `json:"keyWord"`
-	Url         string    `json:"url"`
-	CreatedTime time.Time `json:"createdTime"`
-	UpdatedTime time.Time `json:"updatedTime"`
+	ID          int64     `json:"id" gorm:"id"`
+	UpdateVer   int64     `json:"update_ver" gorm:"column:update_ver"`
+	Title       string    `json:"title" gorm:"title"`
+	KeyWord     string    `json:"keyWord" gorm:"key_word"`
+	Url         string    `json:"url" gorm:"url"`
+	CreatedTime time.Time `json:"createdTime" gorm:"created_time"`
+	UpdatedTime time.Time `json:"updatedTime" gorm:"updated_time"`
 }
 
 func (h *Hyper) TableName() string {

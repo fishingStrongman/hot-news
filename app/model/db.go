@@ -11,9 +11,9 @@ var Conn *gorm.DB
 
 func init() {
 	// 设置配置文件名和路径
-	viper.SetConfigName("config") // 配置文件名（不含扩展名）
-	viper.SetConfigType("yaml")   // 配置文件类型
-	viper.AddConfigPath(".")      // 配置文件所在路径
+	viper.SetConfigName("config.yaml") // 配置文件名（不含扩展名）
+	viper.SetConfigType("yaml")        // 配置文件类型
+	viper.AddConfigPath(".")           // 配置文件所在路径
 
 	err := viper.ReadInConfig()
 	if err != nil {

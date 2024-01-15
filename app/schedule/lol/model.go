@@ -27,13 +27,13 @@ type Result struct {
 //) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 type Lol struct {
-	UpdateVer   int64     `gorm:"column:update_ver;default:NULL"`
-	Id          int64     `gorm:"column:id;primary_key;AUTO_INCREMENT;NOT NULL"`
-	Title       string    `gorm:"column:title;default:NULL"`
-	Url         string    `gorm:"column:url;default:NULL"`
-	Time        string    `gorm:"column:time;default:NULL"`
-	CreatedTime time.Time `gorm:"column:created_time;default:NULL"`
-	UpdatedTime time.Time `gorm:"column:updated_time;default:NULL"`
+	UpdateVer   int64     `json:"update_ver" gorm:"column:update_ver;default:NULL"`
+	Id          int64     `json:"id" gorm:"column:id;primary_key;AUTO_INCREMENT;NOT NULL"`
+	Title       string    `json:"title" gorm:"column:title;default:NULL"`
+	Url         string    `json:"url" gorm:"column:url;default:NULL"`
+	Time        string    `json:"time" gorm:"column:time;default:NULL"`
+	CreatedTime time.Time `json:"created_time" gorm:"column:created_time;default:NULL"`
+	UpdatedTime time.Time `json:"updated_time" gorm:"column:updated_time;default:NULL"`
 }
 
 func (l *Lol) TableName() string {
