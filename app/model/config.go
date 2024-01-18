@@ -7,4 +7,8 @@ type AppConfig struct {
 		Password string `yaml:"password"`
 		Database string `yaml:"database"`
 	} `yaml:"mysql"`
+	Redis struct {
+		Host     string `yaml:"host"`
+		Password string `yaml:"password"`
+	}
 }

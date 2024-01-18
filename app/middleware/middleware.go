@@ -3,8 +3,10 @@ package middleware
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func Cors() gin.HandlerFunc {
@@ -39,4 +41,30 @@ func Cors() gin.HandlerFunc {
 		//处理请求
 		context.Next()
 	}
+}
+func LogMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		path := c.Request.URL.Path
+		raw := c.Request.URL.RawQuery
+		c.Next()
+		end := time.Now()
+		timeSub := end.Sub(start)
+		clientIP := c.ClientIP()
+		method := c.Request.Method
+		statusCode := c.Writer.Status()
+		if raw != "" {
+			path = path + "?" + raw
+		}
+		logrus.Infof("[GIN] %s |%s| %d | %s | %s | %s",
+			start.Format("2006-01-02 15:04:06"),
+			statusCode,
+			timeSub,
+			clientIP,
+			method,
+			path,
+		)
+
+	}
+
 }

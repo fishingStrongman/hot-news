@@ -1,11 +1,14 @@
 package douyin
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 	"hotinfo/app/model"
+	"hotinfo/app/tools"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
@@ -13,7 +16,7 @@ import (
 const api = "https://www.douyin.com/aweme/v1/web/hot/search/list/?device_platform=webapp&aid=6383&channel=channel_pc_web&detail_list=1&source=6&board_type=0&board_sub_type=&pc_client_type=1&version_code=170400&version_name=17.4.0&cookie_enabled=true&screen_width=1536&screen_height=864&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=116.0.1938.76&browser_online=true&engine_name=Blink&engine_version=116.0.0.0&os_name=Windows&os_version=10&cpu_core_num=16&device_memory=8&platform=PC&downlink=10&effective_type=4g&round_trip_time=200&webid=7321996960310937088&msToken=2PE2cwtw2KA_3xc3c1KxDTbkVwCPvWZRXh2Oik0TnjElG-Fn0VvHeFjycKRPRHQ6p71nVgIHEHkEE3pkaaY9t22pOLglxxmnyeH20H11_1rOzY9IuQ==&X-Bogus=DFSzswVLvtUANyuHt7En9ENSwbuS"
 
 func Run() {
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(1 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -35,7 +38,8 @@ func getInfo() {
 	// 创建GET请求
 	request, err := http.NewRequest("GET", api, nil)
 	if err != nil {
-		fmt.Println("Failed to create HTTP request:", err)
+		logrus.Error("douyin:Failed to create HTTP request:", err)
+		//fmt.Println("Failed to create HTTP request:", err)
 		return
 	}
 	//添加User-Agent
@@ -45,7 +49,8 @@ func getInfo() {
 	// 发送请求并获取响应
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Println("HTTP request failed:", err)
+		logrus.Error("douyin:HTTP request failed:", err)
+		//fmt.Println("HTTP request failed:", err)
 		return
 	}
 	defer response.Body.Close()
@@ -53,30 +58,78 @@ func getInfo() {
 	// 读取响应内容
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Failed to read response body:", err)
+		logrus.Error("douyin:Failed to read response body:", err)
+		//fmt.Println("Failed to read response body:", err)
 		return
 	}
 	// 解析响应内容到结构体
 	var baiduHot Hot
 	err = json.Unmarshal(body, &baiduHot)
 	if err != nil {
-		fmt.Println("Failed to unmarshal response body:", err)
+		logrus.Error("douyin:Failed to unmarshal response body:", err)
+		//fmt.Println("Failed to unmarshal response body:", err)
 		return
 	}
 	var data []DouYin
 	now := time.Now().Unix()
+	var hotinfoStr string
 	for _, datum := range baiduHot.Data.List {
 		a := DouYin{
 			UpdateVer:   now,
 			Title:       datum.Title,
 			Url:         "https://www.douyin.com/search/" + datum.Title,
 			Hot:         datum.Hot,
-			CreatedTime: time.Now().Format("2006-01-02 15:04:05"),
-			UpdatedTime: time.Now().Format("2006-01-02 15:04:05"),
+			CreatedTime: time.Now(),
+			UpdatedTime: time.Now(),
 		}
 		data = append(data, a)
+		hotinfoStr = datum.Title + "https://www.douyin.com/search/" + datum.Title + hotinfoStr
 	}
-	model.Conn.Table(data[0].TableName()).Create(&data)
+	hashStr := tools.Sha256Hash(hotinfoStr)
+
+	value, err := model.RedisClient.Get(context.Background(), "douyin_hot").Result()
+	if err == redis.Nil {
+		err = model.RedisClient.Set(context.Background(), "douyin_hot", hashStr, 0).Err()
+		if err != nil {
+			logrus.Error("douyin:Failed to set value in Redis:", err)
+			//fmt.Printf("Failed to set value in Redis: %v", err)
+			return
+
+		}
+		model.Conn.Create(data)
+	} else if err != nil {
+		logrus.Error("douyin:Error getting value from Redis:", err)
+		//fmt.Printf("Error getting value from Redis: %v", err)
+	} else {
+
+		if hashStr != value {
+			err = model.RedisClient.Set(context.Background(), "douyin_hot", hashStr, 0).Err()
+			if err != nil {
+				logrus.Error("douyin:Error setting value from Redis:", err)
+			}
+			err = model.Conn.Create(data).Error
+			if err != nil {
+				logrus.Error("douyin:db_create:", err)
+			}
+		} else {
+			var maxUpdateVer int64
+			var updateSlice []DouYin
+			model.Conn.Model(&DouYin{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+			model.Conn.Where("update_ver = ?", maxUpdateVer).Find(updateSlice)
+			for _, record := range updateSlice {
+				record.UpdateVer = now
+				record.UpdatedTime = time.Now()
+				err := model.Conn.Save(&record).Error
+				if err != nil {
+					logrus.Error("update douyin hot_info err:", err)
+					//fmt.Printf("Failed to set value in Redis: %v", err)
+					return
+
+				}
+			}
+		}
+	}
+
 }
 func Refresh() []DouYin {
 	var maxUpdateVer int64
@@ -84,14 +137,16 @@ func Refresh() []DouYin {
 	// 查询最大的 update_ver
 	result := model.Conn.Model(&DouYin{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		logrus.Error("douyin:Refresh:1:", result.Error)
+		//log.Fatal(result.Error)
 	}
 
 	// 查询所有 update_ver 为最大值的记录
 	var douyinList []DouYin
 	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&douyinList)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		logrus.Error("douyin:Refresh:2:", result.Error)
+		//log.Fatal(result.Error)
 	}
 
 	// 打印查询结果

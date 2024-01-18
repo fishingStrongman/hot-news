@@ -1,5 +1,7 @@
 package douyin
 
+import "time"
+
 // 接受百度的热搜数据
 type Hot struct {
 	Data Date `json:"data"`
@@ -26,9 +28,9 @@ type DouYin struct {
 	//热度
 	Hot int `json:"hot" gorm:"hot"`
 	//创建时间
-	CreatedTime string `json:"created_time" gorm:"created_time"`
+	CreatedTime time.Time `json:"created_time" gorm:"created_time"`
 	//更新时间
-	UpdatedTime string `json:"updated_time" gorm:"updated_time"`
+	UpdatedTime time.Time `json:"updated_time" gorm:"updated_time"`
 }
 
 // TableName 表名称

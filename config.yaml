@@ -3,3 +3,6 @@ mysql:
   username: "hot_info"
   password: "inF2AfAWSMCxXt3C"
   database: "hot_info"
+redis:
+  host: "8.130.129.57:6379"
+  password: "root"

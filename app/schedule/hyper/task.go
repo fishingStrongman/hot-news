@@ -1,9 +1,13 @@
 package hyper
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 	"hotinfo/app/model"
+	"hotinfo/app/tools"
 	"io"
 	"log"
 	"net/http"
@@ -13,7 +17,7 @@ import (
 const api = "https://cache.thepaper.cn/contentapi/wwwIndex/rightSidebar"
 
 func Run() {
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(1 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -39,7 +43,8 @@ func getInfo() {
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", api, nil)
 	if err != nil {
-		fmt.Println("Error creating request:", err)
+		logrus.Error("hyper:Error creating request:", err)
+		//fmt.Println("hyper:Error creating request:", err)
 		return
 	}
 
@@ -47,7 +52,8 @@ func getInfo() {
 	request.Header.Add("Cookie", "Hm_lvt_94a1e06bbce219d29285cee2e37d1d26=1704782716,1704888210; ariaDefaultTheme=undefined; Hm_lpvt_94a1e06bbce219d29285cee2e37d1d26=1704888327")
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Println("Error sending request:", err)
+		logrus.Error("hyper:Error sending request:", err)
+		//fmt.Println("Error sending request:", err)
 		return
 	}
 	defer func() {
@@ -55,7 +61,8 @@ func getInfo() {
 	}()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
+		logrus.Error("hyper:Error reading response body:", err)
+		//fmt.Println("Error reading response body:", err)
 		return
 	}
 	//fmt.Printf("body:%s", string(body))
@@ -63,10 +70,12 @@ func getInfo() {
 	_ = json.Unmarshal(body, &ret)
 	//fmt.Printf("ret:%v", ret.Data.HotNews)
 	data := make([]*Hyper, 0)
+	now := time.Now().Unix()
+	var hotinfoStr string
 	for _, result := range ret.Data.HotNews {
 		url := "https://www.thepaper.cn/newsDetail_forward_" + result.ContId
 		tmp := Hyper{
-			UpdateVer:   time.Now().Unix(),
+			UpdateVer:   now,
 			Title:       result.Name,
 			KeyWord:     getFirstTag(result.TagList),
 			Url:         url,
@@ -74,8 +83,52 @@ func getInfo() {
 			UpdatedTime: time.Now(),
 		}
 		data = append(data, &tmp)
+		hotinfoStr = result.Name + url + hotinfoStr
 	}
-	model.Conn.Create(data)
+	hashStr := tools.Sha256Hash(hotinfoStr)
+
+	value, err := model.RedisClient.Get(context.Background(), "hyper_hot").Result()
+	if err == redis.Nil {
+		err = model.RedisClient.Set(context.Background(), "hyper_hot", hashStr, 0).Err()
+		if err != nil {
+			logrus.Error("hyper:Failed to set value in Redis:", err)
+			//fmt.Printf("Failed to set value in Redis: %v", err)
+			return
+
+		}
+		model.Conn.Create(data)
+	} else if err != nil {
+		logrus.Error("hyper:Error getting value from Redis:", err)
+		//fmt.Printf("Error getting value from Redis: %v", err)
+	} else {
+
+		if hashStr != value {
+			err = model.RedisClient.Set(context.Background(), "hyper_hot", hashStr, 0).Err()
+			if err != nil {
+				logrus.Error("hyper:Error setting value from Redis:", err)
+			}
+			err = model.Conn.Create(data).Error
+			if err != nil {
+				logrus.Error("hyper:db_create:", err)
+			}
+		} else {
+			var maxUpdateVer int64
+			var updateSlice []Hyper
+			model.Conn.Model(&Hyper{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+			model.Conn.Where("update_ver = ?", maxUpdateVer).Find(updateSlice)
+			for _, record := range updateSlice {
+				record.UpdateVer = now
+				record.UpdatedTime = time.Now()
+				err := model.Conn.Save(&record).Error
+				if err != nil {
+					logrus.Error("update hyper hot_info err:", err)
+					//fmt.Printf("Failed to set value in Redis: %v", err)
+					return
+
+				}
+			}
+		}
+	}
 }
 func Refresh() []Hyper {
 	var maxUpdateVer int64
@@ -83,6 +136,7 @@ func Refresh() []Hyper {
 	// 查询最大的 update_ver
 	result := model.Conn.Model(&Hyper{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
 	if result.Error != nil {
+		logrus.Error("hyper:Refresh:1:", result.Error)
 		log.Fatal(result.Error)
 	}
 
@@ -90,7 +144,8 @@ func Refresh() []Hyper {
 	var pengpaiList []Hyper
 	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&pengpaiList)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		logrus.Error("hyper:Refresh:2:", result.Error)
+		//log.Fatal(result.Error)
 	}
 
 	// 打印查询结果

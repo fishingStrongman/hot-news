@@ -9,12 +9,16 @@ import (
 func Start() {
 
 	model.NewMySql()
-
+	model.Redis()
 	//爬虫定时器启动
-	//	taskRun()
+	taskRun()
 
 	//服务器必须最后启动
 	logic.Router()
+	defer func() {
+		model.RedisClose()
+		model.Close()
+	}()
 }
 
 func taskRun() {

@@ -1,11 +1,14 @@
 package wangyi
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 	"hotinfo/app/model"
+	"hotinfo/app/tools"
 	"io"
-	"log"
 	"net/http"
 	"time"
 )
@@ -13,7 +16,7 @@ import (
 const api = "https://m.163.com/fe/api/hot/news/flow"
 
 func Run() {
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(1 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -32,7 +35,8 @@ func getInfo() {
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", api, nil)
 	if err != nil {
-		fmt.Println("Error creating request:", err)
+		logrus.Error("wangyi:Error creating request:", err)
+		//fmt.Println("Error creating request:", err)
 		return
 	}
 	request.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0")
@@ -47,7 +51,8 @@ func getInfo() {
 	}()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
+		logrus.Error("wangyi:Error reading response body:", err)
+		//fmt.Println("Error reading response body:", err)
 		return
 	}
 	//fmt.Printf("body:%s", string(body))
@@ -55,7 +60,8 @@ func getInfo() {
 	var response T
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		fmt.Println("Error parsing JSON:", err)
+		logrus.Error("wangyi:Error parsing JSON:", err)
+		//fmt.Println("Error parsing JSON:", err)
 		return
 	}
 
@@ -66,8 +72,9 @@ func getInfo() {
 	//fmt.Printf("Realtime data: %+v\n", realtimeData)
 	data := make([]*WangYi, 0)
 	now := time.Now().Unix()
-
+	var hotinfoStr string
 	for _, list := range realtimeData {
+		newStr := list.Title + list.Url
 
 		tmp := WangYi{
 			UpdateVer:   now,
@@ -78,9 +85,58 @@ func getInfo() {
 			UpdatedTime: time.Now(),
 		}
 		data = append(data, &tmp)
+		hotinfoStr = hotinfoStr + newStr
 
 	}
-	model.Conn.Create(data)
+
+	hashStr := tools.Sha256Hash(hotinfoStr)
+
+	value, err := model.RedisClient.Get(context.Background(), "wangyi_hot").Result()
+	if err == redis.Nil {
+		err = model.RedisClient.Set(context.Background(), "wangyi_hot", hashStr, 0).Err()
+		if err != nil {
+			logrus.Error("wangyi:Failed to set value in Redis:", err)
+			//fmt.Printf("Failed to set value in Redis: %v", err)
+			return
+
+		}
+		err = model.Conn.Create(data).Error
+		if err != nil {
+			logrus.Error("wangyi:getInfo:", err)
+		}
+	} else if err != nil {
+		logrus.Error("wangyi:Error getting value from Redis:", err)
+		//fmt.Printf("Error getting value from Redis: %v", err)
+	} else {
+
+		if hashStr != value {
+			err = model.RedisClient.Set(context.Background(), "wangyi_hot", hashStr, 0).Err()
+			if err != nil {
+				logrus.Error("wangyi:Error setting value from Redis:", err)
+			}
+			err = model.Conn.Create(data).Error
+			if err != nil {
+				logrus.Error("wangyi:db_create:", err)
+			}
+		} else {
+			var maxUpdateVer int64
+			var updateSlice []WangYi
+			model.Conn.Model(&WangYi{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+			model.Conn.Where("update_ver = ?", maxUpdateVer).Find(updateSlice)
+			for _, record := range updateSlice {
+				record.UpdateVer = now
+				record.UpdatedTime = time.Now()
+				err := model.Conn.Save(&record).Error
+				if err != nil {
+					logrus.Error("update wangyi hot_info err:", err)
+					//fmt.Printf("Failed to set value in Redis: %v", err)
+					return
+
+				}
+			}
+		}
+	}
+
 }
 func Refresh() []WangYi {
 	var maxUpdateVer int64
@@ -88,14 +144,16 @@ func Refresh() []WangYi {
 	// 查询最大的 update_ver
 	result := model.Conn.Model(&WangYi{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		logrus.Error("wangyi:Refresh:1:", result.Error)
+		//log.Fatal(result.Error)
 	}
 
 	// 查询所有 update_ver 为最大值的记录
 	var wangyiList []WangYi
 	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&wangyiList)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		logrus.Error("wangyi:Refresh:2:", result.Error)
+		//log.Fatal(result.Error)
 	}
 
 	// 打印查询结果

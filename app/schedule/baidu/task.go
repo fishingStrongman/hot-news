@@ -1,11 +1,14 @@
 package baidu
 
 import (
+	"context"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 	"hotinfo/app/model"
+	"hotinfo/app/tools"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -14,7 +17,7 @@ import (
 const api = "https://top.baidu.com/board?platform=pc&sa=pcindex_entry"
 
 func Run() {
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(1 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -34,20 +37,21 @@ func getInfo() {
 	// 发起 GET 请求
 	response, err := http.Get(api)
 	if err != nil {
-		fmt.Println("HTTP request failed:", err)
+		logrus.Error("baidu:Failed to read response body:", err)
 		return
 	}
 	defer response.Body.Close()
 	// 读取响应内容
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Failed to read response body:", err)
+		logrus.Error("baidu:Failed to read response body:", err)
+		//fmt.Println("Failed to read response body:", err)
 		return
 	}
 	// 将 HTML 字符串加载到 GoQuery 文档中
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
 	if err != nil {
-		fmt.Println("Failed to load HTML:", err)
+		logrus.Error("baidu:Failed to load HTML:", err)
 		return
 	}
 	//var res []string
@@ -57,6 +61,7 @@ func getInfo() {
 		res := strings.Split(divContent, "热搜榜")
 		re := strings.Split(res[0], "appUrl")
 		var data []BaiDu
+		var hotinfoStr string
 		for i1, s2 := range re {
 
 			if i1 != 0 {
@@ -84,17 +89,60 @@ func getInfo() {
 					Title:       titl1,
 					Url:         url1,
 					Hot:         hot1,
-					CreatedTime: time.Now().Format("2006-01-02 15:04:05"),
-					UpdatedTime: time.Now().Format("2006-01-02 15:04:05"),
+					CreatedTime: time.Now(),
+					UpdatedTime: time.Now(),
 				}
 				data = append(data, a)
+				hotinfoStr = titl1 + url1 + hotinfoStr
 			}
 
 		}
-		for _, datum := range data {
-			fmt.Println(datum)
+
+		hashStr := tools.Sha256Hash(hotinfoStr)
+
+		value, err := model.RedisClient.Get(context.Background(), "baidu_hot").Result()
+		if err == redis.Nil {
+			err = model.RedisClient.Set(context.Background(), "baidu_hot", hashStr, 0).Err()
+			if err != nil {
+				logrus.Error("baidu:Failed to set value in Redis:", err)
+				//fmt.Printf("Failed to set value in Redis: %v", err)
+				return
+
+			}
+			model.Conn.Create(data)
+		} else if err != nil {
+			logrus.Error("baidu:Error getting value from Redis:", err)
+			//fmt.Printf("Error getting value from Redis: %v", err)
+		} else {
+
+			if hashStr != value {
+				err = model.RedisClient.Set(context.Background(), "baidu_hot", hashStr, 0).Err()
+				if err != nil {
+					logrus.Error("baidu:Error setting value from Redis:", err)
+				}
+				err = model.Conn.Create(data).Error
+				if err != nil {
+					logrus.Error("baidu:db_create:", err)
+				}
+			} else {
+				var maxUpdateVer int64
+				var updateSlice []BaiDu
+				model.Conn.Model(&BaiDu{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
+				model.Conn.Where("update_ver = ?", maxUpdateVer).Find(updateSlice)
+				for _, record := range updateSlice {
+					record.UpdateVer = time.Now().Unix()
+					record.UpdatedTime = time.Now()
+					err := model.Conn.Save(&record).Error
+					if err != nil {
+						logrus.Error("update baidu hot_info err:", err)
+						//fmt.Printf("Failed to set value in Redis: %v", err)
+						return
+
+					}
+				}
+			}
 		}
-		model.Conn.Table(data[0].TableName()).Create(&data)
+
 	})
 
 }
@@ -104,14 +152,14 @@ func Refresh() []BaiDu {
 	// 查询最大的 update_ver
 	result := model.Conn.Model(&BaiDu{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		logrus.Error("baidu:Refresh:1:", result.Error)
 	}
 
 	// 查询所有 update_ver 为最大值的记录
 	var baiduList []BaiDu
 	result = model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&baiduList)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		logrus.Error("baidu:Refresh:2:", result.Error)
 	}
 
 	// 打印查询结果
