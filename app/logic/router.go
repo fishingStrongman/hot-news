@@ -6,6 +6,7 @@ import (
 )
 
 func Router() {
+
 	r := gin.Default()
 	r.Use(middleware.Cors())
 	r.Use(middleware.LogMiddleware())

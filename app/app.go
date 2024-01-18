@@ -4,10 +4,11 @@ import (
 	"hotinfo/app/logic"
 	"hotinfo/app/model"
 	"hotinfo/app/schedule"
+	"hotinfo/app/tools"
 )
 
 func Start() {
-
+	tools.InitFile("app/log/", "")
 	model.NewMySql()
 	model.Redis()
 	//爬虫定时器启动

@@ -105,7 +105,7 @@ func getInfo() {
 			var maxUpdateVer int64
 			var updateSlice []BRank
 			model.Conn.Model(&BRank{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
-			model.Conn.Where("update_ver = ?", maxUpdateVer).Find(updateSlice)
+			model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&updateSlice)
 			for _, record := range updateSlice {
 				record.UpdateVer = now
 				record.UpdatedTime = time.Now()

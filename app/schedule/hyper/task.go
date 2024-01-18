@@ -33,12 +33,14 @@ func Run() {
 func Do() {
 	getInfo()
 }
+
 func getFirstTag(tagList []*TagList) string {
 	if len(tagList) > 0 {
 		return tagList[0].Tag
 	}
 	return ""
 }
+
 func getInfo() {
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", api, nil)
@@ -115,7 +117,7 @@ func getInfo() {
 			var maxUpdateVer int64
 			var updateSlice []Hyper
 			model.Conn.Model(&Hyper{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
-			model.Conn.Where("update_ver = ?", maxUpdateVer).Find(updateSlice)
+			model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&updateSlice)
 			for _, record := range updateSlice {
 				record.UpdateVer = now
 				record.UpdatedTime = time.Now()

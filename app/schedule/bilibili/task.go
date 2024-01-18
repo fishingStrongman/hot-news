@@ -58,7 +58,7 @@ func getInfo() {
 		logrus.Error("bilibili:Error reading response body:", err)
 		return
 	}
-	fmt.Printf("body:%s", string(body))
+	//fmt.Printf("body:%s", string(body))
 
 	//body, _ := os.ReadFile("./app/schedule/bilibili/data.json")
 	//fmt.Printf("body:%s\n", body)
@@ -148,7 +148,7 @@ func Refresh() []Bilibili {
 	}
 
 	// 打印查询结果
-	fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
+	//fmt.Printf("Data with max update_ver (%d):\n", maxUpdateVer)
 	return bilibiliList
 
 }

@@ -127,8 +127,9 @@ func getInfo() {
 			} else {
 				var maxUpdateVer int64
 				var updateSlice []BaiDu
-				model.Conn.Model(&BaiDu{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer)
-				model.Conn.Where("update_ver = ?", maxUpdateVer).Find(updateSlice)
+				err = model.Conn.Model(&BaiDu{}).Select("MAX(update_ver) as max_update_ver").Scan(&maxUpdateVer).Error
+
+				model.Conn.Where("update_ver = ?", maxUpdateVer).Find(&updateSlice)
 				for _, record := range updateSlice {
 					record.UpdateVer = time.Now().Unix()
 					record.UpdatedTime = time.Now()
