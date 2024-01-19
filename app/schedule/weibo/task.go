@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"hotinfo/app/model"
 	"hotinfo/app/tools"
 	"io"
@@ -13,10 +14,19 @@ import (
 	"time"
 )
 
-const api = "https://weibo.com/ajax/side/hotSearch"
+func init() {
+	// 设置配置文件名和路径
+	viper.SetConfigName("config.yaml") // 配置文件名（不含扩展名）
+	viper.SetConfigType("yaml")        // 配置文件类型
+	viper.AddConfigPath(".")           // 配置文件所在路径
 
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic("配置文件读取失败")
+	}
+}
 func Run() {
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -27,13 +37,15 @@ func Run() {
 			getInfo()
 		}
 	}
+	fmt.Println(viper.GetString("hot_api.weibo"))
 }
+
 func Do() {
 	getInfo()
 }
 func getInfo() {
 	client := &http.Client{}
-	request, err := http.NewRequest("GET", api, nil)
+	request, err := http.NewRequest("GET", viper.GetString("hot_api.weibo"), nil)
 	if err != nil {
 		logrus.Error("weibo:Error creating request:", err)
 		//fmt.Println("Error creating request:", err)
@@ -83,6 +95,7 @@ func getInfo() {
 			UpdateVer:   now,
 			Title:       list.Note,
 			Url:         url,
+			Hot:         list.RawHot,
 			IconDesc:    list.IconDesc,
 			Category:    list.Category,
 			CreatedTime: time.Now(),
@@ -91,7 +104,7 @@ func getInfo() {
 		data = append(data, &tmp)
 		hotinfoStr = hotinfoStr + list.Note + list.IconDesc + list.Category
 	}
-
+	model.Conn.Create(data)
 	hashStr := tools.Sha256Hash(hotinfoStr)
 
 	value, err := model.RedisClient.Get(context.Background(), "weibo_hot").Result()

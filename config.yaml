@@ -6,3 +6,16 @@ mysql:
 redis:
   host: "8.130.129.57:6379"
   password: "root"
+hot_api:
+  zhihu: "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true"
+  weibo: "https://weibo.com/ajax/side/hotSearch"
+  wangyi: "https://m.163.com/fe/api/hot/news/flow"
+  toutiao: "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00d01fz2EaAAAIDCqXSaPLKo-Pn80hUAABqj2McKKyN-ZFKSeYnDCzFmiHfyLZVJUtrSCHyGtp2v7Ztb7pLyecXTYgXFN6.XJUqt0-qtlRw2HTe2N25GxfGIYvmXAjOtTfj2fexBfc"
+  tengxun: "https://i.news.qq.com/gw/pc_search/hotWord"
+  lol: "https://apps.game.qq.com/cmc/zmMcnTargetContentList?r0=jsonp&page=1&num=16&target=24&source=web_pc&r1=jQuery19108354930441080934_1704804548069&_=1704804548070"
+  juejin: "https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&type=hot&aid=2608&uuid=7263387509600912950&spider=0"
+  hyper: "https://cache.thepaper.cn/contentapi/wwwIndex/rightSidebar"
+  douyin: "https://www.douyin.com/aweme/v1/web/hot/search/list/?device_platform=webapp&aid=6383&channel=channel_pc_web&detail_list=1&source=6&board_type=0&board_sub_type=&pc_client_type=1&version_code=170400&version_name=17.4.0&cookie_enabled=true&screen_width=1536&screen_height=864&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=116.0.1938.76&browser_online=true&engine_name=Blink&engine_version=116.0.0.0&os_name=Windows&os_version=10&cpu_core_num=16&device_memory=8&platform=PC&downlink=10&effective_type=4g&round_trip_time=200&webid=7321996960310937088&msToken=2PE2cwtw2KA_3xc3c1KxDTbkVwCPvWZRXh2Oik0TnjElG-Fn0VvHeFjycKRPRHQ6p71nVgIHEHkEE3pkaaY9t22pOLglxxmnyeH20H11_1rOzY9IuQ==&X-Bogus=DFSzswVLvtUANyuHt7En9ENSwbuS"
+  bilibili_rank: "https://api.bilibili.com/x/web-interface/ranking/v2"
+  bilibili: "https://api.bilibili.com/x/web-interface/wbi/search/square?limit=20&platform=web"
+  baidu: "https://top.baidu.com/board?platform=pc&sa=pcindex_entry"

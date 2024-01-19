@@ -17,6 +17,17 @@ type ResDate struct {
 	MobileUrl string `json:"mobileUrl"`
 }
 
+// CREATE TABLE `douyin` (
+// `id` bigint NOT NULL AUTO_INCREMENT,
+// `update_ver` bigint DEFAULT NULL,
+// `title` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+// `url` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+// `hot` int DEFAULT NULL,
+// `created_time` datetime DEFAULT NULL,
+// `updated_time` datetime DEFAULT NULL,
+// PRIMARY KEY (`id`),
+// KEY `index` (`update_ver`) USING BTREE /*!80000 INVISIBLE */
+// ) ENGINE=InnoDB AUTO_INCREMENT=10966 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 type DouYin struct {
 	ID int64 `json:"id" gorm:"id"`
 	//更新的版本

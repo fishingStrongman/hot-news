@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"hotinfo/app/model"
 	"hotinfo/app/tools"
 	"io"
@@ -14,10 +15,20 @@ import (
 	"time"
 )
 
-const api = "https://cache.thepaper.cn/contentapi/wwwIndex/rightSidebar"
+func init() {
+	// 设置配置文件名和路径
+	viper.SetConfigName("config.yaml") // 配置文件名（不含扩展名）
+	viper.SetConfigType("yaml")        // 配置文件类型
+	viper.AddConfigPath(".")           // 配置文件所在路径
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic("配置文件读取失败")
+	}
+}
 
 func Run() {
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -43,7 +54,7 @@ func getFirstTag(tagList []*TagList) string {
 
 func getInfo() {
 	client := &http.Client{}
-	request, err := http.NewRequest("GET", api, nil)
+	request, err := http.NewRequest("GET", viper.GetString("hot_api.hyper"), nil)
 	if err != nil {
 		logrus.Error("hyper:Error creating request:", err)
 		//fmt.Println("hyper:Error creating request:", err)

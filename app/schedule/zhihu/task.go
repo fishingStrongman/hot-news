@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"hotinfo/app/model"
 	"hotinfo/app/tools"
 	"io/ioutil"
@@ -13,10 +14,19 @@ import (
 	"time"
 )
 
-const api = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true"
+func init() {
+	// 设置配置文件名和路径
+	viper.SetConfigName("config.yaml") // 配置文件名（不含扩展名）
+	viper.SetConfigType("yaml")        // 配置文件类型
+	viper.AddConfigPath(".")           // 配置文件所在路径
 
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic("配置文件读取失败")
+	}
+}
 func Run() {
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -36,7 +46,7 @@ func getInfo() {
 	client := http.Client{}
 
 	// 创建GET请求
-	request, err := http.NewRequest("GET", api, nil)
+	request, err := http.NewRequest("GET", viper.GetString("hot_api.zhihu"), nil)
 	if err != nil {
 		logrus.Error("zhihu:Failed to create HTTP request:", err)
 		//fmt.Println("Failed to create HTTP request:", err)

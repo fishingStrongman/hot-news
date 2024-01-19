@@ -28,7 +28,7 @@ type List struct {
 }
 
 //数据库建表语句
-
+//
 //CREATE TABLE `bilibili` (
 //`id` bigint NOT NULL AUTO_INCREMENT,
 //`update_ver` bigint DEFAULT NULL,
@@ -37,9 +37,10 @@ type List struct {
 //`key_word` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 //`created_time` datetime DEFAULT NULL,
 //`updated_time` datetime DEFAULT NULL,
+//`hot` bigint DEFAULT NULL,
 //PRIMARY KEY (`id`),
 //KEY `index` (`update_ver`) USING BTREE
-//) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+//) ENGINE=InnoDB AUTO_INCREMENT=5521 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 type Bilibili struct {
 	ID          int64     `json:"id" gorm:"id"`

@@ -10,5 +10,5 @@ type AppConfig struct {
 	Redis struct {
 		Host     string `yaml:"host"`
 		Password string `yaml:"password"`
-	}
+	} `yaml:"redis"`
 }

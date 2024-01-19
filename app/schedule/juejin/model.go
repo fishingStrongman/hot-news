@@ -76,7 +76,7 @@ type HotListItem struct {
 // `updated_time` datetime DEFAULT NULL,
 // PRIMARY KEY (`id`),
 // KEY `index` (`update_ver`) USING BTREE
-// ) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+// ) ENGINE=InnoDB AUTO_INCREMENT=11102 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 type Juejin struct {
 	ID          int64     `json:"id" gorm:"id"`
 	Hot         int64     `json:"hot" gorm:"gorm"`

@@ -21,18 +21,18 @@ type List struct {
 	ShortLinkV2 string `json:"short_link_v2"`
 }
 
-//CREATE TABLE `bilibili_rank` (
-//`id` bigint NOT NULL AUTO_INCREMENT,
-//`update_ver` bigint DEFAULT NULL,
-//`title` varchar(255) DEFAULT NULL,
-//`tag` varchar(255) DEFAULT NULL,
-//`author` varchar(255) DEFAULT NULL,
-//`url` varchar(255) DEFAULT NULL,
-//`created_time` datetime DEFAULT NULL,
-//`updated_time` datetime DEFAULT NULL,
-//PRIMARY KEY (`id`)
-//) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+// CREATE TABLE `brank` (
+// `id` bigint NOT NULL AUTO_INCREMENT,
+// `update_ver` bigint DEFAULT NULL,
+// `title` varchar(255) DEFAULT NULL,
+// `tag` varchar(255) DEFAULT NULL,
+// `author` varchar(255) DEFAULT NULL,
+// `url` varchar(255) DEFAULT NULL,
+// `created_time` datetime DEFAULT NULL,
+// `updated_time` datetime DEFAULT NULL,
+// PRIMARY KEY (`id`),
+// KEY `index` (`update_ver`) USING BTREE
+// ) ENGINE=InnoDB AUTO_INCREMENT=11095 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 type BRank struct {
 	Id          int64     `json:"id" gorm:"column:id;primary_key;AUTO_INCREMENT;NOT NULL"`
 	UpdateVer   int64     `json:"update_ver" gorm:"column:update_ver;default:NULL"`

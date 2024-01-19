@@ -8,18 +8,21 @@ import (
 )
 
 func Start() {
+
 	tools.InitFile("app/log/", "")
 	model.NewMySql()
 	model.Redis()
+	defer func() {
+		model.RedisClose()
+		model.Close()
+	}()
+
 	//爬虫定时器启动
 	taskRun()
 
 	//服务器必须最后启动
 	logic.Router()
-	defer func() {
-		model.RedisClose()
-		model.Close()
-	}()
+
 }
 
 func taskRun() {

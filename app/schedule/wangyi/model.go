@@ -37,6 +37,19 @@ type T struct {
 		} `json:"list"`
 	} `json:"data"`
 }
+
+// CREATE TABLE `wangyi` (
+// `id` bigint NOT NULL AUTO_INCREMENT,
+// `update_ver` bigint DEFAULT NULL,
+// `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+// `key_word` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+// `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+// `created_time` datetime DEFAULT NULL,
+// `updated_time` datetime DEFAULT NULL,
+// `hot` bigint DEFAULT NULL,
+// PRIMARY KEY (`id`),
+// KEY `index` (`update_ver`) USING BTREE
+// ) ENGINE=InnoDB AUTO_INCREMENT=15841 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 type WangYi struct {
 	ID          int64     `json:"id" gorm:"id"`
 	UpdateVer   int64     `json:"update_ver" gorm:"update_ver"`

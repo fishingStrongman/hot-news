@@ -23,14 +23,16 @@ type TagList struct {
 //数据库建表语句
 
 //CREATE TABLE `hyper` (
-//`id` bigint NOT NULL AUTO_INCREMENT,
-//`title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-//`key_word` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+//`Id` bigint NOT NULL AUTO_INCREMENT,
+//`update_ver` bigint DEFAULT NULL,
+//`title` varchar(255) DEFAULT NULL,
+//`key_word` varchar(255) DEFAULT NULL,
+//`url` varchar(255) DEFAULT NULL,
 //`created_time` datetime DEFAULT NULL,
 //`updated_time` datetime DEFAULT NULL,
-//PRIMARY KEY (`id`),
+//PRIMARY KEY (`Id`),
 //KEY `index` (`update_ver`) USING BTREE
-//) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+//) ENGINE=InnoDB AUTO_INCREMENT=9583 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 type Hyper struct {
 	ID          int64     `json:"id" gorm:"id"`

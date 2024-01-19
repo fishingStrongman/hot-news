@@ -24,6 +24,19 @@ type ResDate struct {
 //		Hot  string `json:"hot"`
 //		Url  string `json:"url"`
 //	}
+
+//CREATE TABLE `zhihu` (
+//`id` bigint NOT NULL AUTO_INCREMENT,
+//`update_ver` bigint DEFAULT NULL,
+//`title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+//`url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+//`hot` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+//`created_time` datetime DEFAULT NULL,
+//`updated_time` datetime DEFAULT NULL,
+//PRIMARY KEY (`id`),
+//KEY `index` (`update_ver`) USING BTREE
+//) ENGINE=InnoDB AUTO_INCREMENT=14151 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 type ZhiHu struct {
 	ID int64 `json:"id" gorm:"id"`
 	//更新的版本

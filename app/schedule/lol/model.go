@@ -14,18 +14,18 @@ type Result struct {
 	IDocId   string `json:"iDocId"`
 }
 
-//建表语句
-//CREATE TABLE `lol` (
-//`update_ver` bigint DEFAULT NULL,
-//`id` bigint NOT NULL AUTO_INCREMENT,
-//`title` varchar(255) DEFAULT NULL,
-//`url` varchar(255) DEFAULT NULL,
-//`time` varchar(255) DEFAULT NULL,
-//`created_time` datetime DEFAULT NULL,
-//`updated_time` datetime DEFAULT NULL,
-//PRIMARY KEY (`id`)
-//) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+// 建表语句
+// CREATE TABLE `lol` (
+// `id` bigint NOT NULL AUTO_INCREMENT,
+// `update_ver` bigint DEFAULT NULL,
+// `title` varchar(255) DEFAULT NULL,
+// `url` varchar(255) DEFAULT NULL,
+// `time` varchar(255) DEFAULT NULL,
+// `created_time` datetime DEFAULT NULL,
+// `updated_time` datetime DEFAULT NULL,
+// PRIMARY KEY (`id`),
+// KEY `index` (`update_ver`) USING BTREE
+// ) ENGINE=InnoDB AUTO_INCREMENT=1377 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 type Lol struct {
 	UpdateVer   int64     `json:"update_ver" gorm:"column:update_ver;default:NULL"`
 	Id          int64     `json:"id" gorm:"column:id;primary_key;AUTO_INCREMENT;NOT NULL"`

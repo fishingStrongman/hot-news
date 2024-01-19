@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"hotinfo/app/model"
 	"hotinfo/app/tools"
 	"io/ioutil"
@@ -13,10 +14,19 @@ import (
 	"time"
 )
 
-const api = "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00d01fz2EaAAAIDCqXSaPLKo-Pn80hUAABqj2McKKyN-ZFKSeYnDCzFmiHfyLZVJUtrSCHyGtp2v7Ztb7pLyecXTYgXFN6.XJUqt0-qtlRw2HTe2N25GxfGIYvmXAjOtTfj2fexBfc"
+func init() {
+	// 设置配置文件名和路径
+	viper.SetConfigName("config.yaml") // 配置文件名（不含扩展名）
+	viper.SetConfigType("yaml")        // 配置文件类型
+	viper.AddConfigPath(".")           // 配置文件所在路径
 
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic("配置文件读取失败")
+	}
+}
 func Run() {
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -36,7 +46,7 @@ func getInfo() {
 	client := http.Client{}
 
 	// 创建GET请求
-	request, err := http.NewRequest("GET", api, nil)
+	request, err := http.NewRequest("GET", viper.GetString("hot_api.toutiao"), nil)
 	if err != nil {
 		logrus.Error("toutiao:Failed to create HTTP request:", err)
 		//fmt.Println("Failed to create HTTP request:", err)

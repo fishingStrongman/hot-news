@@ -6,6 +6,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"hotinfo/app/model"
 	"hotinfo/app/tools"
 	"io/ioutil"
@@ -14,10 +15,20 @@ import (
 	"time"
 )
 
-const api = "https://top.baidu.com/board?platform=pc&sa=pcindex_entry"
+func init() {
+	// 设置配置文件名和路径
+	viper.SetConfigName("config.yaml") // 配置文件名（不含扩展名）
+	viper.SetConfigType("yaml")        // 配置文件类型
+	viper.AddConfigPath(".")           // 配置文件所在路径
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic("配置文件读取失败")
+	}
+}
 
 func Run() {
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -35,7 +46,7 @@ func Do() {
 }
 func getInfo() {
 	// 发起 GET 请求
-	response, err := http.Get(api)
+	response, err := http.Get(viper.GetString("hot_api.baidu"))
 	if err != nil {
 		logrus.Error("baidu:Failed to read response body:", err)
 		return

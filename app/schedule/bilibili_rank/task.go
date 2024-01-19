@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"hotinfo/app/model"
 	"hotinfo/app/tools"
 	"io"
@@ -13,11 +14,20 @@ import (
 	"time"
 )
 
-// const api = "https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all&web_location=333.934&w_rid=a6a74f54c01bf69f693d80f2da05e329&wts=1704943132"
-const api = "https://api.bilibili.com/x/web-interface/ranking/v2"
+func init() {
+	// 设置配置文件名和路径
+	viper.SetConfigName("config.yaml") // 配置文件名（不含扩展名）
+	viper.SetConfigType("yaml")        // 配置文件类型
+	viper.AddConfigPath(".")           // 配置文件所在路径
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic("配置文件读取失败")
+	}
+}
 
 func Run() {
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -36,7 +46,7 @@ func Do() {
 
 func getInfo() {
 	client := &http.Client{}
-	request, err := http.NewRequest("GET", api, nil)
+	request, err := http.NewRequest("GET", viper.GetString("hot_api.bilibili_rank"), nil)
 	if err != nil {
 		logrus.Error("bilibili_rank:Error creating request:", err)
 		return

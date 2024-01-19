@@ -42,17 +42,20 @@ type Response struct {
 // `update_ver` bigint DEFAULT NULL,
 // `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 // `url` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-// `key_word` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+// `time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+// `source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
 // `created_time` datetime DEFAULT NULL,
 // `updated_time` datetime DEFAULT NULL,
+// `hot` bigint DEFAULT NULL,
 // PRIMARY KEY (`id`),
 // KEY `index` (`update_ver`) USING BTREE
-// ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+// ) ENGINE=InnoDB AUTO_INCREMENT=2231 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 type TengXun struct {
 	ID          int64     `json:"id" gorm:"id"`
 	UpdateVer   int64     `json:"update_ver" gorm:"update_ver"`
 	Title       string    `json:"title" gorm:"title"`
 	Time        string    `json:"time" gorm:"time"`
+	Hot         int       `json:"hot" gorm:"hot"`
 	Url         string    `json:"url" gorm:"url"`
 	Source      string    `json:"source" gorm:"source"`
 	CreatedTime time.Time `json:"created_time" gorm:"created_time"`

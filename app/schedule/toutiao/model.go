@@ -19,6 +19,20 @@ type ResDate struct {
 	LabelDesc string `json:"LabelDesc"`
 }
 
+//CREATE TABLE `toutiao` (
+//`id` bigint NOT NULL AUTO_INCREMENT,
+//`update_ver` bigint DEFAULT NULL,
+//`title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+//`icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+//`url` varchar(8000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+//`hot` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+//`label_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+//`created_time` datetime DEFAULT NULL,
+//`updated_time` datetime DEFAULT NULL,
+//PRIMARY KEY (`id`),
+//KEY `index` (`update_ver`) USING BTREE
+//) ENGINE=InnoDB AUTO_INCREMENT=13801 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 type TouTiao struct {
 	ID int64 `json:"id" gorm:"id"`
 	//更新的版本

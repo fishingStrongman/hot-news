@@ -8,13 +8,18 @@ import (
 	"hotinfo/app/schedule/bilibili"
 	"hotinfo/app/schedule/bilibili_rank"
 	"hotinfo/app/schedule/douyin"
+
 	"hotinfo/app/schedule/hyper"
+
 	"hotinfo/app/schedule/juejin"
+
 	"hotinfo/app/schedule/lol"
+
 	"hotinfo/app/schedule/tengxun"
 	"hotinfo/app/schedule/toutiao"
 	"hotinfo/app/schedule/wangyi"
 	"hotinfo/app/schedule/weibo"
+
 	"hotinfo/app/schedule/zhihu"
 )
 
@@ -70,6 +75,7 @@ func Select(c *gin.Context) {
 		resp := baidu.Refresh()
 		response.Ok(resp, "百度热搜榜", c)
 		return
+
 	case "全部刷新":
 		type AllInfo struct {
 			BaiDu        []baidu.BaiDu         `json:"bai_du"`
@@ -98,6 +104,7 @@ func Select(c *gin.Context) {
 		wangyi := wangyi.Refresh()
 		weibo := weibo.Refresh()
 		zhihu := zhihu.Refresh()
+
 		allInfo := AllInfo{
 			BaiDu:        baidu,
 			BilibiliHot:  bilibili,
